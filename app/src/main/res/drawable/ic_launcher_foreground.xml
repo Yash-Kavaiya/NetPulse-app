@@ -1,0 +1,27 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Network Pulse / Data Flow Icon -->
+    <!-- Wi-Fi / Pulse arcs -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,28 C42.2,28 31.4,32.8 23.5,40.6 L28.2,45.3 C34.8,38.8 43.9,34.8 54,34.8 C64.1,34.8 73.2,38.8 79.8,45.3 L84.5,40.6 C76.6,32.8 65.8,28 54,28 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,42 C46.1,42 39,45.2 33.8,50.4 L38.5,55.1 C42.5,51.1 48,48.6 54,48.6 C60,48.6 65.5,51.1 69.5,55.1 L74.2,50.4 C69,45.2 61.9,42 54,42 Z" />
+    <!-- Pulse Center & Dual Arrows (RX & TX) -->
+    <!-- Upload Arrow (Green accent / White) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M43,62 L43,76 L49,76 L49,62 L54,62 L46,54 L38,62 Z" />
+    <!-- Download Arrow -->
+    <path
+        android:fillColor="#FBBC05"
+        android:pathData="M65,68 L65,54 L59,54 L59,68 L54,68 L62,76 L70,68 Z" />
+    <!-- Data Base Dot -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,80 C52.3,80 51,81.3 51,83 C51,84.7 52.3,86 54,86 C55.7,86 57,84.7 57,83 C57,81.3 55.7,80 54,80 Z" />
+</vector>
