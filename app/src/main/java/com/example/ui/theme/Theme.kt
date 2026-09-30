@@ -56,7 +56,7 @@ private val LightColorScheme =
 @Composable
 fun MyApplicationTheme(
   darkTheme: Boolean = isSystemInDarkTheme(),
-  // We prefer our explicit Google Brand colors over arbitrary OEM dynamic colors to match prompt guidelines
+  // Brand colors by default; users can opt into Material You dynamic color in Settings.
   dynamicColor: Boolean = false,
   content: @Composable () -> Unit,
 ) {
@@ -71,6 +71,10 @@ fun MyApplicationTheme(
     }
 
   val googleColors = GoogleThemeColors(
+    darkGray = if (darkTheme) DarkOnSurface else DarkGray,
+    mediumGray = if (darkTheme) DarkOnSurfaceVariant else MediumGray,
+    borderGray = if (darkTheme) DarkOutline else BorderGray,
+    lightGray = if (darkTheme) DarkBackground else LightGray,
     infoBg = if (darkTheme) DarkSurfaceVariant else InfoBackground,
     successBg = if (darkTheme) DarkSurfaceVariant else SuccessBackground,
     warningBg = if (darkTheme) DarkSurfaceVariant else WarningBackground,

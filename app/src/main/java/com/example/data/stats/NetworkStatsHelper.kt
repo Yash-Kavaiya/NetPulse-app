@@ -15,7 +15,7 @@ import com.example.data.model.AppNetworkUsage
 import com.example.data.model.DeviceNetworkSummary
 import com.example.data.model.LiveTrafficSpeed
 import com.example.data.model.TimeRangeFilter
-import java.util.Calendar
+import com.example.data.model.UsageBucket
 
 object NetworkStatsHelper {
 
@@ -52,44 +52,10 @@ object NetworkStatsHelper {
     }
 
     /**
-     * Calculates time bounds for standard temporal queries
+     * Calculates time bounds for standard temporal queries.
      */
-    fun getTimeBounds(filter: TimeRangeFilter): Pair<Long, Long> {
-        val now = System.currentTimeMillis()
-        val calendar = Calendar.getInstance()
-
-        return when (filter) {
-            TimeRangeFilter.TODAY -> {
-                calendar.set(Calendar.HOUR_OF_DAY, 0)
-                calendar.set(Calendar.MINUTE, 0)
-                calendar.set(Calendar.SECOND, 0)
-                calendar.set(Calendar.MILLISECOND, 0)
-                Pair(calendar.timeInMillis, now)
-            }
-            TimeRangeFilter.YESTERDAY -> {
-                calendar.set(Calendar.HOUR_OF_DAY, 0)
-                calendar.set(Calendar.MINUTE, 0)
-                calendar.set(Calendar.SECOND, 0)
-                calendar.set(Calendar.MILLISECOND, 0)
-                val endOfYesterday = calendar.timeInMillis
-                calendar.add(Calendar.DAY_OF_YEAR, -1)
-                val startOfYesterday = calendar.timeInMillis
-                Pair(startOfYesterday, endOfYesterday)
-            }
-            TimeRangeFilter.LAST_7_DAYS -> {
-                calendar.add(Calendar.DAY_OF_YEAR, -7)
-                Pair(calendar.timeInMillis, now)
-            }
-            TimeRangeFilter.THIS_MONTH -> {
-                calendar.set(Calendar.DAY_OF_MONTH, 1)
-                calendar.set(Calendar.HOUR_OF_DAY, 0)
-                calendar.set(Calendar.MINUTE, 0)
-                calendar.set(Calendar.SECOND, 0)
-                calendar.set(Calendar.MILLISECOND, 0)
-                Pair(calendar.timeInMillis, now)
-            }
-        }
-    }
+    fun getTimeBounds(filter: TimeRangeFilter, cycleStartDay: Int = 1): Pair<Long, Long> =
+        TimeRanges.bounds(filter, cycleStartDay)
 
     /**
      * 1. Query device-wide summary using NetworkStatsManager.querySummaryForDevice()
@@ -140,6 +106,59 @@ object NetworkStatsHelper {
             startTime = startTime,
             endTime = endTime
         )
+    }
+
+    /**
+     * Device-wide traffic split into consecutive buckets of [stepMs] (e.g. one per day or hour),
+     * used by history charts. Each bucket is a separate querySummaryForDevice() call so the
+     * boundaries line up with local calendar days rather than the platform's UTC buckets.
+     */
+    fun queryDeviceBuckets(context: Context, boundaries: List<Long>, endTime: Long): List<UsageBucket> {
+        if (boundaries.isEmpty()) return emptyList()
+        return boundaries.mapIndexed { index, start ->
+            val end = boundaries.getOrNull(index + 1) ?: endTime
+            val summary = queryDeviceSummary(context, start, end)
+            UsageBucket(
+                startTime = start,
+                endTime = end,
+                mobileBytes = summary.mobileTotalBytes,
+                wifiBytes = summary.wifiTotalBytes
+            )
+        }
+    }
+
+    /** Daily traffic of a single UID, used for the per-app trend chart. */
+    fun queryUidDailyBuckets(context: Context, uid: Int, dayStarts: List<Long>, endTime: Long): List<UsageBucket> {
+        val nsm = context.getSystemService(Context.NETWORK_STATS_SERVICE) as? NetworkStatsManager
+            ?: return emptyList()
+        if (dayStarts.isEmpty()) return emptyList()
+        val mobile = LongArray(dayStarts.size)
+        val wifi = LongArray(dayStarts.size)
+
+        fun accumulate(networkType: Int, target: LongArray) {
+            try {
+                val stats = nsm.queryDetailsForUid(networkType, null, dayStarts.first(), endTime, uid)
+                val bucket = NetworkStats.Bucket()
+                while (stats.hasNextBucket()) {
+                    stats.getNextBucket(bucket)
+                    val idx = dayStarts.indexOfLast { it <= bucket.startTimeStamp }
+                    if (idx >= 0) target[idx] += bucket.rxBytes + bucket.txBytes
+                }
+                stats.close()
+            } catch (_: Exception) {
+            }
+        }
+        accumulate(ConnectivityManager.TYPE_MOBILE, mobile)
+        accumulate(ConnectivityManager.TYPE_WIFI, wifi)
+
+        return dayStarts.mapIndexed { i, start ->
+            UsageBucket(
+                startTime = start,
+                endTime = dayStarts.getOrNull(i + 1) ?: endTime,
+                mobileBytes = mobile[i],
+                wifiBytes = wifi[i]
+            )
+        }
     }
 
     private data class UidAggregator(

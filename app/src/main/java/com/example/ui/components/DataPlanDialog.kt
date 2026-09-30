@@ -3,6 +3,8 @@ package com.example.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -49,20 +51,23 @@ import com.example.ui.theme.LocalGoogleColors
 @Composable
 fun DataPlanDialog(
     currentPlan: DataPlanEntity?,
-    onSave: (limitBytes: Long, warningPercent: Int, isEnabled: Boolean, planType: String) -> Unit,
+    onSave: (DataPlanEntity) -> Unit,
     onDismiss: () -> Unit
 ) {
     val googleColors = LocalGoogleColors.current
 
     val initialGb = remember(currentPlan) {
         val gb = (currentPlan?.monthlyLimitBytes ?: (10L * 1024L * 1024L * 1024L)) / (1024.0 * 1024.0 * 1024.0)
-        String.format("%.1f", gb).replace(",", ".")
+        String.format(java.util.Locale.US, "%.1f", gb)
     }
 
     var gbInput by remember { mutableStateOf(initialGb) }
     var isEnabled by remember { mutableStateOf(currentPlan?.isEnabled ?: true) }
     var warningPercent by remember { mutableIntStateOf(currentPlan?.warningPercent ?: 80) }
-    var planType by remember { mutableStateOf(currentPlan?.planType ?: "MOBILE") }
+    var planType by remember { mutableStateOf(currentPlan?.planType ?: DataPlanEntity.PLAN_TYPE_MOBILE) }
+    var cycleDay by remember { mutableIntStateOf(currentPlan?.cycleStartDay ?: 1) }
+    val gbValue = gbInput.replace(",", ".").toDoubleOrNull()
+    val inputValid = gbValue != null && gbValue > 0.0 && gbValue < 100_000.0
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -86,7 +91,7 @@ fun DataPlanDialog(
             )
         },
         text = {
-            Column(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
                 // Enable switch
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -122,7 +127,7 @@ fun DataPlanDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    listOf("MOBILE" to "Cellular Only", "TOTAL" to "Total (Cellular + Wi-Fi)").forEach { (type, label) ->
+                    listOf(DataPlanEntity.PLAN_TYPE_MOBILE to "Cellular Only", DataPlanEntity.PLAN_TYPE_TOTAL to "Cellular + Wi-Fi").forEach { (type, label) ->
                         val selected = planType == type
                         Box(
                             modifier = Modifier
@@ -156,6 +161,10 @@ fun DataPlanDialog(
                     value = gbInput,
                     onValueChange = { gbInput = it },
                     singleLine = true,
+                    isError = !inputValid,
+                    supportingText = if (!inputValid) {
+                        { Text("Enter a limit greater than 0") }
+                    } else null,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -223,15 +232,57 @@ fun DataPlanDialog(
                         }
                     }
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Billing cycle reset day
+                Text(
+                    text = "Billing cycle resets on day",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = googleColors.mediumGray
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    OutlinedButton(
+                        onClick = { cycleDay = if (cycleDay <= 1) 31 else cycleDay - 1 },
+                        modifier = Modifier.testTag("cycle_day_minus")
+                    ) { Text("-") }
+                    Text(
+                        text = "$cycleDay",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = googleColors.darkGray,
+                        modifier = Modifier.padding(horizontal = 20.dp).testTag("cycle_day_value")
+                    )
+                    OutlinedButton(
+                        onClick = { cycleDay = if (cycleDay >= 31) 1 else cycleDay + 1 },
+                        modifier = Modifier.testTag("cycle_day_plus")
+                    ) { Text("+") }
+                }
             }
         },
         confirmButton = {
             Button(
                 onClick = {
-                    val gbDouble = gbInput.toDoubleOrNull() ?: 10.0
-                    val bytes = (gbDouble * 1024.0 * 1024.0 * 1024.0).toLong()
-                    onSave(bytes, warningPercent, isEnabled, planType)
+                    val bytes = ((gbValue ?: 10.0) * 1024.0 * 1024.0 * 1024.0).toLong()
+                    val base = currentPlan ?: DataPlanEntity()
+                    val resetAlerts = base.monthlyLimitBytes != bytes || base.warningPercent != warningPercent ||
+                        base.planType != planType || base.cycleStartDay != cycleDay
+                    onSave(
+                        base.copy(
+                            monthlyLimitBytes = bytes,
+                            warningPercent = warningPercent,
+                            isEnabled = isEnabled,
+                            planType = planType,
+                            cycleStartDay = cycleDay,
+                            // Changing the plan re-arms alerts for the current cycle.
+                            warningAlertedCycle = if (resetAlerts) 0L else base.warningAlertedCycle,
+                            limitAlertedCycle = if (resetAlerts) 0L else base.limitAlertedCycle
+                        )
+                    )
                 },
+                enabled = inputValid,
+                modifier = Modifier.testTag("save_plan_button"),
                 colors = ButtonDefaults.buttonColors(containerColor = GoogleUIBlue),
                 shape = RoundedCornerShape(18.dp)
             ) {

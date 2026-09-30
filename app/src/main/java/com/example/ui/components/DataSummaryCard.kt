@@ -63,7 +63,9 @@ fun DataSummaryCard(
     dataPlan: DataPlanEntity?,
     liveSpeed: LiveTrafficSpeed,
     onEditDataPlan: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** Bytes used in the current billing cycle; the plan tracker is hidden when null. */
+    planUsedBytes: Long? = null
 ) {
     val googleColors = LocalGoogleColors.current
     val totalBytes = summary.getTotalForFilter(selectedFilter)
@@ -309,9 +311,9 @@ fun DataSummaryCard(
             }
 
             // Data Plan Budget Tracker (if enabled)
-            if (dataPlan != null && dataPlan.isEnabled) {
-                val budgetBytes = dataPlan.monthlyLimitBytes
-                val relevantUsed = if (dataPlan.planType == "MOBILE") summary.mobileTotalBytes else summary.grandTotalBytes
+            if (dataPlan != null && dataPlan.isEnabled && planUsedBytes != null) {
+                val budgetBytes = dataPlan.monthlyLimitBytes.coerceAtLeast(1L)
+                val relevantUsed = planUsedBytes
                 val usedProgress = (relevantUsed.toFloat() / budgetBytes).coerceIn(0f, 1.5f)
                 val animatedProgress by animateFloatAsState(targetValue = usedProgress.coerceAtMost(1f), label = "progress")
                 val isWarning = usedProgress >= (dataPlan.warningPercent / 100f)
@@ -356,7 +358,7 @@ fun DataSummaryCard(
                                     Spacer(modifier = Modifier.width(4.dp))
                                 }
                                 Text(
-                                    text = if (dataPlan.planType == "MOBILE") "Cellular Data Budget" else "Total Data Budget",
+                                    text = if (dataPlan.planType == DataPlanEntity.PLAN_TYPE_MOBILE) "Cellular Data Budget" else "Total Data Budget",
                                     style = MaterialTheme.typography.labelMedium,
                                     fontWeight = FontWeight.SemiBold,
                                     color = googleColors.darkGray
