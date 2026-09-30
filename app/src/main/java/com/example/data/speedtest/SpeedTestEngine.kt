@@ -104,7 +104,7 @@ class SpeedTestEngine @Inject constructor(
         while (System.currentTimeMillis() - start < config.downloadDurationMs) {
             client.newCall(downloadRequest(config.downloadChunkBytes)).execute().use { response ->
                 if (!response.isSuccessful) throw SpeedTestException("Download failed: HTTP ${response.code}")
-                val stream = response.body.byteStream()
+                val stream = response.body?.byteStream() ?: throw SpeedTestException("Empty response body")
                 while (true) {
                     currentCoroutineContext().ensureActive()
                     val read = stream.read(buffer)
@@ -178,7 +178,7 @@ class SpeedTestEngine @Inject constructor(
     private fun execute(request: Request) {
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) throw SpeedTestException("HTTP ${response.code}")
-            response.body.bytes()
+            response.body?.bytes()
         }
     }
 }
