@@ -58,14 +58,6 @@ data class SpeedTestResultEntity(
     val networkType: String
 )
 
-@Entity(tableName = "insights")
-data class InsightEntity(
-    @PrimaryKey val id: Int = 1,
-    val createdAt: Long,
-    val rangeLabel: String,
-    val text: String
-)
-
 @Dao
 interface DataPlanDao {
     @Query("SELECT * FROM data_plans WHERE id = 1 LIMIT 1")
@@ -108,30 +100,19 @@ interface SpeedTestDao {
     suspend fun clear()
 }
 
-@Dao
-interface InsightDao {
-    @Query("SELECT * FROM insights WHERE id = 1")
-    fun observe(): Flow<InsightEntity?>
-
-    @Upsert
-    suspend fun save(insight: InsightEntity)
-}
-
 @Database(
     entities = [
         DataPlanEntity::class,
         DailyUsageEntity::class,
-        SpeedTestResultEntity::class,
-        InsightEntity::class
+        SpeedTestResultEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun dataPlanDao(): DataPlanDao
     abstract fun dailyUsageDao(): DailyUsageDao
     abstract fun speedTestDao(): SpeedTestDao
-    abstract fun insightDao(): InsightDao
 
     companion object {
         const val NAME = "netpulse_database"
@@ -155,6 +136,13 @@ abstract class AppDatabase : RoomDatabase() {
                     "CREATE TABLE IF NOT EXISTS insights (id INTEGER NOT NULL, createdAt INTEGER NOT NULL, " +
                         "rangeLabel TEXT NOT NULL, text TEXT NOT NULL, PRIMARY KEY(id))"
                 )
+            }
+        }
+
+        /** Version 3 removed the AI insights feature and its cache table. */
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS insights")
             }
         }
     }

@@ -82,13 +82,13 @@ fun OnboardingScreen(onFinished: () -> Unit) {
                     icon = Icons.Default.DataUsage,
                     title = "Know where your data goes",
                     body = "NetPulse tracks mobile and Wi-Fi usage per app, forecasts your billing cycle, " +
-                        "tests your speed and explains your habits with AI."
+                        "tests your speed and gives you tips to save data."
                 )
                 1 -> Page(
                     icon = Icons.Default.Security,
                     title = "Allow usage access",
                     body = "Android requires Usage access for apps to read network statistics. " +
-                        "Your data never leaves the device unless you ask for AI insights.",
+                        "Your usage data never leaves the device.",
                     granted = usageGranted,
                     actionLabel = "Open usage access settings",
                     onAction = {

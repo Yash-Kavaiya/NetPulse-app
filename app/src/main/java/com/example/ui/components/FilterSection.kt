@@ -87,7 +87,7 @@ fun FilterSection(
                     modifier = Modifier
                         .testTag("time_chip_${range.name.lowercase()}")
                         .clip(RoundedCornerShape(16.dp))
-                        .background(if (isSelected) googleColors.infoBg else googleColors.white)
+                        .background(if (isSelected) googleColors.infoBg else MaterialTheme.colorScheme.surface)
                         .clickable { onTimeRangeSelected(range) }
                         .padding(horizontal = 14.dp, vertical = 8.dp),
                     contentAlignment = Alignment.Center
@@ -132,7 +132,7 @@ fun FilterSection(
                                     Icon(
                                         imageVector = Icons.Default.NetworkCell,
                                         contentDescription = null,
-                                        tint = if (isSelected) GoogleRed else googleColors.mediumGray,
+                                        tint = if (isSelected) GoogleGreen else googleColors.mediumGray,
                                         modifier = Modifier.size(16.dp)
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
@@ -215,7 +215,7 @@ fun FilterSection(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(20.dp))
-                        .background(googleColors.white)
+                        .background(MaterialTheme.colorScheme.surface)
                         .clickable { sortMenuExpanded = true }
                         .padding(horizontal = 12.dp, vertical = 12.dp),
                     contentAlignment = Alignment.Center

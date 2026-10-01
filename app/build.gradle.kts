@@ -1,18 +1,13 @@
-import com.google.gms.googleservices.GoogleServicesPlugin.MissingGoogleServicesStrategy
-
 plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.compose)
   alias(libs.plugins.kotlin.serialization)
   alias(libs.plugins.google.devtools.ksp)
   alias(libs.plugins.hilt)
-  alias(libs.plugins.secrets)
-  alias(libs.plugins.google.services)
 }
 
-val appVersionCode = (findProperty("netpulse.versionCode") as String?)?.toInt() ?: 2
-val appVersionName = (findProperty("netpulse.versionName") as String?) ?: "2.0.0"
-val geminiModel = (findProperty("netpulse.geminiModel") as String?) ?: "gemini-2.5-flash"
+val appVersionCode = (findProperty("netpulse.versionCode") as String?)?.toInt() ?: 3
+val appVersionName = (findProperty("netpulse.versionName") as String?) ?: "2.1.0"
 val releaseKeystore = System.getenv("KEYSTORE_PATH")?.let { file(it) } ?: file("${rootDir}/my-upload-key.jks")
 
 android {
@@ -27,7 +22,6 @@ android {
     versionName = appVersionName
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    buildConfigField("String", "GEMINI_MODEL", "\"$geminiModel\"")
   }
 
   signingConfigs {
@@ -77,19 +71,8 @@ ksp {
   arg("room.generateKotlin", "true")
 }
 
-// Configure the Secrets Gradle Plugin to use .env and .env.example files
-// to match the convention used in Web projects.
-secrets {
-  propertiesFileName = ".env"
-  defaultPropertiesFileName = ".env.example"
-  ignoreList.add("FIREBASE_APPCHECK_DEBUG_TOKEN")
-}
-
-googleServices { missingGoogleServicesStrategy = MissingGoogleServicesStrategy.WARN }
-
 dependencies {
   implementation(platform(libs.androidx.compose.bom))
-  implementation(platform(libs.firebase.bom))
 
   implementation(libs.androidx.core.ktx)
   implementation(libs.androidx.core.splashscreen)
@@ -114,10 +97,6 @@ dependencies {
   implementation(libs.hilt.android)
   implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
   implementation(libs.androidx.hilt.work)
-
-  implementation(libs.firebase.ai)
-  implementation(libs.firebase.appcheck.playintegrity)
-  debugImplementation(libs.firebase.appcheck.debug)
 
   implementation(libs.kotlinx.coroutines.android)
   implementation(libs.kotlinx.coroutines.core)

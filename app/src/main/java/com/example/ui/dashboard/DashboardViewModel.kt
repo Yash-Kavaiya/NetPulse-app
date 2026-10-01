@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.data.model.AppNetworkUsage
 import com.example.data.model.DeviceNetworkSummary
 import com.example.data.model.LiveTrafficSpeed
+import com.example.data.model.UsageBucket
 import com.example.data.plan.CycleUsage
 import com.example.data.plan.PlanRepository
 import com.example.data.room.DataPlanEntity
@@ -34,6 +35,8 @@ data class DashboardUiState(
     val cycleSummary: DeviceNetworkSummary = DeviceNetworkSummary(),
     val cycle: CycleUsage? = null,
     val topApps: List<AppNetworkUsage> = emptyList(),
+    /** Daily totals for the last 7 days, oldest first; the last entry is today. */
+    val week: List<UsageBucket> = emptyList(),
     val showPlanDialog: Boolean = false,
     val errorMessage: String? = null
 ) {
@@ -46,6 +49,9 @@ data class DashboardUiState(
             val length = (c.cycleEnd - c.cycleStart).coerceAtLeast(1)
             return (c.usedBytes.toDouble() / elapsed * length).toLong()
         }
+
+    val tips: List<UsageTip>
+        get() = UsageTips.build(today, yesterday, cycleSummary, cycle, projectedCycleBytes, topApps)
 }
 
 @HiltViewModel
@@ -85,6 +91,9 @@ class DashboardViewModel @Inject constructor(
                 val cycle = cycleDeferred.await()
                 val cycleSummary = async { stats.deviceSummary(cycle.cycleStart, now) }
                 val apps = async { stats.apps(cycle.cycleStart, now).take(5) }
+                val week = async {
+                    stats.deviceBuckets(TimeRanges.dayStarts(TimeRanges.addDays(startToday, -6), now), now)
+                }
                 _uiState.update {
                     it.copy(
                         isLoading = false,
@@ -93,7 +102,8 @@ class DashboardViewModel @Inject constructor(
                         yesterday = yesterday.await(),
                         cycle = cycle,
                         cycleSummary = cycleSummary.await(),
-                        topApps = apps.await()
+                        topApps = apps.await(),
+                        week = week.await()
                     )
                 }
             } catch (e: Exception) {

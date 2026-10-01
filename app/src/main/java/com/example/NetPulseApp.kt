@@ -7,7 +7,6 @@ import com.example.data.prefs.SettingsRepository
 import com.example.live.LiveSpeedService
 import com.example.notifications.Notifications
 import com.example.work.WorkScheduler
-import com.google.firebase.FirebaseApp
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,10 +28,6 @@ class NetPulseApp : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         Notifications.createChannels(this)
-        // google-services.json is optional; without it Firebase (and AI insights) stay disabled.
-        if (FirebaseApp.initializeApp(this) != null) {
-            AppCheckInstaller.install()
-        }
         WorkScheduler.schedule(this)
         appScope.launch {
             if (settingsRepository.current().liveSpeedNotification && Notifications.canPost(this@NetPulseApp)) {

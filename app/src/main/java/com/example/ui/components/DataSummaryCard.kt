@@ -87,7 +87,7 @@ fun DataSummaryCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         border = CardDefaults.outlinedCardBorder().copy(brush = androidx.compose.ui.graphics.SolidColor(BorderGray))
     ) {
         Column(
@@ -192,7 +192,7 @@ fun DataSummaryCard(
                                 modifier = Modifier
                                     .size(8.dp)
                                     .clip(CircleShape)
-                                    .background(GoogleRed)
+                                    .background(GoogleGreen)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
@@ -227,7 +227,7 @@ fun DataSummaryCard(
                                 modifier = Modifier
                                     .weight(mobileRatio.coerceAtLeast(0.01f))
                                     .fillMaxHeight()
-                                    .background(GoogleRed)
+                                    .background(GoogleGreen)
                             )
                         }
                     }

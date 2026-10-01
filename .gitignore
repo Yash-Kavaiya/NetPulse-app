@@ -18,4 +18,3 @@ local.properties
 debug.keystore
 *.jks
 *.keystore
-google-services.json

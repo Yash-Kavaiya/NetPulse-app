@@ -50,8 +50,8 @@ fun UsageBarChart(
     selectedIndex: Int? = null,
     onBarSelected: (Int) -> Unit = {},
     chartHeight: Dp = 180.dp,
-    mobileColor: Color = LocalGoogleColors.current.uiBlue,
-    wifiColor: Color = LocalGoogleColors.current.green
+    mobileColor: Color = LocalGoogleColors.current.green,
+    wifiColor: Color = LocalGoogleColors.current.blue
 ) {
     val colors = LocalGoogleColors.current
     val maxBytes = (buckets.maxOfOrNull { it.totalBytes } ?: 0L).coerceAtLeast(1L)

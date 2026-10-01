@@ -24,10 +24,9 @@ private val sections = listOf(
         "Android only exposes per-app network statistics to apps the user grants Usage access. NetPulse uses " +
             "it solely to read network counters; it does not read which screens you open or your content.",
     "Privacy" to
-        "All usage data stays on your device. Nothing is uploaded except: (1) the speed test, which transfers " +
-            "test data with Cloudflare's speed test servers, and (2) AI insights, which — only when you tap " +
-            "Generate — send app names and byte totals to Google's Gemini API via Firebase. No account, " +
-            "advertising ID or analytics are used.",
+        "All usage data stays on your device. The only network activity is the speed test, which exchanges " +
+            "test data with Cloudflare's speed test servers when you start it. No account, advertising ID " +
+            "or analytics are used.",
     "Accuracy" to
         "Carriers may count data differently (rounding, zero-rated apps, tethering rules). Treat NetPulse as an " +
             "estimate and check your carrier's app for billing figures.",

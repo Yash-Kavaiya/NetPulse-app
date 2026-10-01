@@ -9,7 +9,6 @@ import androidx.room.Room
 import com.example.data.room.AppDatabase
 import com.example.data.room.DailyUsageDao
 import com.example.data.room.DataPlanDao
-import com.example.data.room.InsightDao
 import com.example.data.room.SpeedTestDao
 import com.example.data.stats.StatsRepository
 import com.example.data.stats.UsageStatsSource
@@ -32,13 +31,12 @@ object AppModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, AppDatabase.NAME)
-            .addMigrations(AppDatabase.MIGRATION_1_2)
+            .addMigrations(AppDatabase.MIGRATION_1_2, AppDatabase.MIGRATION_2_3)
             .build()
 
     @Provides fun provideDataPlanDao(db: AppDatabase): DataPlanDao = db.dataPlanDao()
     @Provides fun provideDailyUsageDao(db: AppDatabase): DailyUsageDao = db.dailyUsageDao()
     @Provides fun provideSpeedTestDao(db: AppDatabase): SpeedTestDao = db.speedTestDao()
-    @Provides fun provideInsightDao(db: AppDatabase): InsightDao = db.insightDao()
 
     @Provides
     @Singleton

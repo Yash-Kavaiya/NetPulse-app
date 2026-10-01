@@ -1,18 +1,13 @@
 package com.example.data
 
-import com.example.data.ai.InsightInput
-import com.example.data.ai.InsightPrompt
 import com.example.data.export.Csv
 import com.example.data.model.AppNetworkUsage
-import com.example.data.model.DeviceNetworkSummary
 import com.example.data.model.UsageBucket
 import com.example.ui.history.HistoryMerge
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class CsvAndPromptTest {
+class CsvAndHistoryTest {
     @Test
     fun `csv escapes commas and quotes`() {
         assertEquals("plain", Csv.escape("plain"))
@@ -37,20 +32,5 @@ class CsvAndPromptTest {
         val merged = HistoryMerge.merge(live, snaps)
         assertEquals(7L, merged[0].totalBytes)
         assertEquals(10L, merged[1].totalBytes)
-    }
-
-    @Test
-    fun `insight prompt contains totals and app names but no package names`() {
-        val prompt = InsightPrompt.build(
-            InsightInput(
-                rangeLabel = "Today",
-                summary = DeviceNetworkSummary(mobileRxBytes = 2048),
-                topApps = listOf(AppNetworkUsage(uid = 1, packageName = "com.secret.pkg", appName = "Maps", rxBytesMobile = 1024)),
-                cycle = null
-            )
-        )
-        assertTrue(prompt.contains("Maps"))
-        assertTrue(prompt.contains("Mobile: 2.0 KB"))
-        assertFalse(prompt.contains("com.secret.pkg"))
     }
 }

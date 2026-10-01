@@ -257,7 +257,7 @@ fun AppDetailBottomSheet(
                             Icon(
                                 imageVector = Icons.Default.NetworkCell,
                                 contentDescription = "Cellular",
-                                tint = GoogleRed,
+                                tint = GoogleGreen,
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
