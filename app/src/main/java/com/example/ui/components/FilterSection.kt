@@ -54,7 +54,7 @@ import com.example.data.model.SortOption
 import com.example.data.model.TimeRangeFilter
 import com.example.ui.theme.BorderGray
 import com.example.ui.theme.GoogleBlue
-import com.example.ui.theme.GoogleRed
+import com.example.ui.theme.GoogleGreen
 import com.example.ui.theme.GoogleUIBlue
 import com.example.ui.theme.LocalGoogleColors
 
