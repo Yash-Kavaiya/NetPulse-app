@@ -217,9 +217,11 @@ private fun HeroCard(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                "${greeting()} · Today",
+                greeting(),
                 style = MaterialTheme.typography.labelLarge,
                 color = onHeroMuted,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
             )
             Row(
@@ -234,21 +236,31 @@ private fun HeroCard(
                 Text(
                     "↓ ${liveSpeed.rxFormatted}  ↑ ${liveSpeed.txFormatted}",
                     style = MaterialTheme.typography.labelSmall,
-                    color = onHero
+                    color = onHero,
+                    maxLines = 1,
+                    softWrap = false
                 )
             }
         }
 
         Spacer(Modifier.height(10.dp))
-        Text(
-            formatByteSize(animatedBytes(todayBytes)),
-            style = MaterialTheme.typography.displayMedium,
-            fontWeight = FontWeight.Bold,
-            color = onHero,
-            modifier = Modifier
-                .testTag("today_total")
-                .semantics { contentDescription = "${formatByteSize(todayBytes)} used today" }
-        )
+        Row(verticalAlignment = Alignment.Bottom) {
+            Text(
+                formatByteSize(animatedBytes(todayBytes)),
+                style = MaterialTheme.typography.displayMedium,
+                fontWeight = FontWeight.Bold,
+                color = onHero,
+                modifier = Modifier
+                    .testTag("today_total")
+                    .semantics { contentDescription = "${formatByteSize(todayBytes)} used today" }
+            )
+            Text(
+                "today",
+                style = MaterialTheme.typography.titleMedium,
+                color = onHeroMuted,
+                modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
+            )
+        }
 
         if (yesterdayBytes > 0) {
             val diff = todayBytes - yesterdayBytes
@@ -299,7 +311,7 @@ private fun HeroStat(label: String, value: String, modifier: Modifier = Modifier
 @Composable
 private fun WeekSparkline(week: List<UsageBucket>) {
     val max = week.maxOf { it.totalBytes }.coerceAtLeast(1L)
-    val dayFormat = remember { SimpleDateFormat("EEEEE", Locale.getDefault()) }
+    val dayFormat = remember { SimpleDateFormat("EEE", Locale.getDefault()) }
     Row(
         Modifier.fillMaxWidth().semantics { contentDescription = "Usage for the last ${week.size} days" },
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -327,6 +339,8 @@ private fun WeekSparkline(week: List<UsageBucket>) {
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
                     color = Color.White.copy(alpha = if (isToday) 1f else 0.7f),
+                    maxLines = 1,
+                    softWrap = false,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }

@@ -4,8 +4,8 @@ import android.graphics.drawable.Drawable
 import java.util.Locale
 
 enum class NetworkFilterType(val label: String) {
-    ALL("All Networks"),
-    MOBILE("Cellular (Mobile)"),
+    ALL("All"),
+    MOBILE("Mobile"),
     WIFI("Wi-Fi")
 }
 

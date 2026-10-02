@@ -173,7 +173,7 @@ fun FilterSection(
                     .testTag("search_apps_input"),
                 placeholder = {
                     Text(
-                        text = "Search apps, packages, UIDs...",
+                        text = "Search apps",
                         style = MaterialTheme.typography.bodyMedium,
                         color = googleColors.mediumGray
                     )
