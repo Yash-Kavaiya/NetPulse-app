@@ -36,6 +36,42 @@ jobs:
           name: netpulse-apks
           path: app/build/outputs/apk/**/*.apk
 
+      # Signed App Bundle for Google Play. Skipped when the signing secrets are not available
+      # (for example on pull requests from forks).
+      - name: Decode upload keystore
+        id: keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload-key.jks"
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build signed release bundle
+        if: steps.keystore.outputs.available == 'true'
+        env:
+          KEYSTORE_PATH: ${{ runner.temp }}/upload-key.jks
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          ./gradlew bundleRelease --stacktrace
+          jarsigner -verify app/build/outputs/bundle/release/app-release.aab | tail -n 3
+
+      - name: Upload signed bundle
+        if: steps.keystore.outputs.available == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: netpulse-release-aab
+          path: app/build/outputs/bundle/release/*.aab
+
+      - name: Remove keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/upload-key.jks"
+
       - name: Unit tests
         run: ./gradlew testDebugUnitTest --stacktrace
 
