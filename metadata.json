@@ -2,5 +2,5 @@
   "name": "NetPulse",
   "description": "Device and per-app network data usage tracker with NetworkStatsManager and Google Design Theme.",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
