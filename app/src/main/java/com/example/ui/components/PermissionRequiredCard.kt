@@ -61,7 +61,7 @@ fun PermissionRequiredCard(
             .testTag("permission_card"),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         border = CardDefaults.outlinedCardBorder().copy(brush = androidx.compose.ui.graphics.SolidColor(BorderGray))
     ) {
         Column(
@@ -213,7 +213,7 @@ private fun StepItem(number: String, text: String) {
             Text(
                 text = number,
                 style = MaterialTheme.typography.labelSmall,
-                color = androidx.compose.ui.graphics.Color.White,
+                color = LocalGoogleColors.current.white,
                 fontWeight = FontWeight.Bold
             )
         }

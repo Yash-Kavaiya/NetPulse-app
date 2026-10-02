@@ -1,6 +1,7 @@
 package com.example.data.model
 
 import android.graphics.drawable.Drawable
+import java.util.Locale
 
 enum class NetworkFilterType(val label: String) {
     ALL("All Networks"),
@@ -12,7 +13,8 @@ enum class TimeRangeFilter(val label: String) {
     TODAY("Today"),
     YESTERDAY("Yesterday"),
     LAST_7_DAYS("Last 7 Days"),
-    THIS_MONTH("This Month (30d)")
+    LAST_30_DAYS("Last 30 Days"),
+    BILLING_CYCLE("Billing Cycle")
 }
 
 enum class SortOption(val label: String) {
@@ -123,10 +125,10 @@ data class LiveTrafficSpeed(
             if (bytesPerSec <= 0) return "0 B/s"
             val kb = bytesPerSec / 1024.0
             if (kb < 1024.0) {
-                return String.format("%.1f KB/s", kb)
+                return String.format(Locale.US, "%.1f KB/s", kb)
             }
             val mb = kb / 1024.0
-            return String.format("%.2f MB/s", mb)
+            return String.format(Locale.US, "%.2f MB/s", mb)
         }
     }
 }
@@ -134,9 +136,22 @@ data class LiveTrafficSpeed(
 fun formatByteSize(bytes: Long): String {
     if (bytes < 1024) return "$bytes B"
     val kb = bytes / 1024.0
-    if (kb < 1024.0) return String.format("%.1f KB", kb)
+    if (kb < 1024.0) return String.format(Locale.US, "%.1f KB", kb)
     val mb = kb / 1024.0
-    if (mb < 1024.0) return String.format("%.2f MB", mb)
+    if (mb < 1024.0) return String.format(Locale.US, "%.2f MB", mb)
     val gb = mb / 1024.0
-    return String.format("%.2f GB", gb)
+    return String.format(Locale.US, "%.2f GB", gb)
+}
+
+/** Mbps formatting for speed-test results (network convention: bits, base 10). */
+fun formatMbps(mbps: Double): String = String.format(Locale.US, "%.1f Mbps", mbps)
+
+/** One bucket of device-wide traffic, used for history charts. */
+data class UsageBucket(
+    val startTime: Long,
+    val endTime: Long,
+    val mobileBytes: Long = 0L,
+    val wifiBytes: Long = 0L
+) {
+    val totalBytes: Long get() = mobileBytes + wifiBytes
 }
