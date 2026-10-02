@@ -56,6 +56,26 @@ import kotlin.math.min
 fun SpeedTestScreen(viewModel: SpeedTestViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val history by viewModel.history.collectAsStateWithLifecycle()
+    SpeedTestContent(
+        state = state,
+        history = history,
+        onStart = viewModel::start,
+        onCancel = viewModel::cancel,
+        onClearHistory = viewModel::clearHistory,
+        onDismissError = viewModel::dismissError
+    )
+}
+
+/** Stateless speed test UI, separated from the view model so it can be rendered in tests. */
+@Composable
+fun SpeedTestContent(
+    state: SpeedTestUiState,
+    history: List<SpeedTestResultEntity>,
+    onStart: () -> Unit,
+    onCancel: () -> Unit,
+    onClearHistory: () -> Unit,
+    onDismissError: () -> Unit
+) {
     val colors = LocalGoogleColors.current
     val p = state.progress
 
@@ -133,12 +153,12 @@ fun SpeedTestScreen(viewModel: SpeedTestViewModel = hiltViewModel()) {
                         Metric("Jitter", p.jitterMs?.let { "$it ms" } ?: "—")
                     }
                     if (state.isRunning) {
-                        OutlinedButton(onClick = viewModel::cancel, modifier = Modifier.padding(top = 16.dp)) {
+                        OutlinedButton(onClick = onCancel, modifier = Modifier.padding(top = 16.dp)) {
                             Text("Cancel")
                         }
                     } else {
                         Button(
-                            onClick = viewModel::start,
+                            onClick = onStart,
                             modifier = Modifier.padding(top = 16.dp).testTag("start_speed_test")
                         ) { Text(if (p.phase == SpeedTestPhase.DONE) "Test again" else "Start test") }
                     }
@@ -153,7 +173,7 @@ fun SpeedTestScreen(viewModel: SpeedTestViewModel = hiltViewModel()) {
         }
 
         state.error?.let { msg ->
-            item(key = "error") { ErrorBanner(msg, onRetry = { viewModel.dismissError(); viewModel.start() }) }
+            item(key = "error") { ErrorBanner(msg, onRetry = { onDismissError(); onStart() }) }
         }
 
         if (history.isNotEmpty()) {
@@ -166,7 +186,7 @@ fun SpeedTestScreen(viewModel: SpeedTestViewModel = hiltViewModel()) {
                         color = colors.darkGray,
                         modifier = Modifier.weight(1f)
                     )
-                    TextButton(onClick = viewModel::clearHistory) { Text("Clear") }
+                    TextButton(onClick = onClearHistory) { Text("Clear") }
                 }
             }
             items(history, key = { it.id }) { HistoryRow(it) }

@@ -1,8 +1,7 @@
 # NetPulse
 
 Android data-usage monitor: per-app mobile and Wi-Fi usage, billing-cycle plan tracking with alerts,
-history charts, an in-app speed test, a live-speed notification with a Quick Settings tile, a home-screen
-widget, CSV export and backup, and on-device smart tips.
+history charts, an in-app speed test, a home-screen widget, CSV export and backup, and on-device smart tips.
 
 Kotlin · Jetpack Compose (Material 3) · Hilt · Room · DataStore · WorkManager · Glance · OkHttp
 
@@ -15,7 +14,6 @@ Kotlin · Jetpack Compose (Material 3) · Hilt · Room · DataStore · WorkManag
 | **History** | 7, 30 and 90-day stacked mobile/Wi-Fi charts, tap a day for hourly usage, comparison with the previous period |
 | **Speed** | Ping, jitter, download and upload test (Cloudflare endpoints) with saved result history |
 | **Alerts** | Hourly background check that sends one warning and one limit notification per billing cycle |
-| **Live monitor** | Ongoing ↓/↑ speed notification, toggled in Settings or from the Quick Settings tile |
 | **Widget** | Today's usage and cycle progress on the home screen |
 | **Export** | CSV export of daily usage, app usage and speed tests; JSON backup and restore of plan and settings |
 
@@ -33,7 +31,6 @@ app/src/main/java/com/example/
   data/speedtest/         OkHttp speed-test engine
   data/export/            CSV and JSON backup
   work/                   UsageSnapshotWorker, DataLimitCheckWorker, scheduling
-  live/                   Live-speed foreground service and Quick Settings tile
   widget/                 Glance app widget
   ui/                     Compose screens (dashboard, apps, history, speedtest, settings, about, onboarding)
 app/schemas/              Exported Room schemas
@@ -73,8 +70,7 @@ tones instead of shadows and desaturated accent colors. Components read colors t
 | Permission | Why |
 | --- | --- |
 | `PACKAGE_USAGE_STATS` (Usage access, granted by the user in Settings) | Read per-app network statistics |
-| `POST_NOTIFICATIONS` | Plan alerts and the live-speed notification |
-| `FOREGROUND_SERVICE` + `FOREGROUND_SERVICE_SPECIAL_USE` | Live-speed notification while the user keeps it on |
+| `POST_NOTIFICATIONS` | Plan alerts |
 | `INTERNET`, `ACCESS_NETWORK_STATE` | Speed test, network type |
 
 `QUERY_ALL_PACKAGES` is **not** requested. A `<queries>` launcher filter resolves the names and icons of
@@ -84,6 +80,4 @@ installed launcher apps. Packages without a launcher activity appear as "System 
 
 - **Data safety:** usage statistics stay on the device. Speed tests exchange test data with
   Cloudflare. There are no analytics, ads or accounts.
-- **Special-use foreground service:** declare it in Play Console as a "user-initiated, ongoing network
-  throughput indicator".
 - **Privacy policy:** host a policy based on the About screen's Privacy section and link it in the listing.

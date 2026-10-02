@@ -6,8 +6,8 @@ plugins {
   alias(libs.plugins.hilt)
 }
 
-val appVersionCode = (findProperty("netpulse.versionCode") as String?)?.toInt() ?: 3
-val appVersionName = (findProperty("netpulse.versionName") as String?) ?: "2.1.0"
+val appVersionCode = (findProperty("netpulse.versionCode") as String?)?.toInt() ?: 4
+val appVersionName = (findProperty("netpulse.versionName") as String?) ?: "2.2.0"
 val releaseKeystore = System.getenv("KEYSTORE_PATH")?.let { file(it) } ?: file("${rootDir}/my-upload-key.jks")
 
 android {
@@ -86,7 +86,6 @@ dependencies {
   implementation(libs.androidx.lifecycle.runtime.compose)
   implementation(libs.androidx.lifecycle.runtime.ktx)
   implementation(libs.androidx.lifecycle.viewmodel.compose)
-  implementation(libs.androidx.lifecycle.service)
   implementation(libs.androidx.navigation.compose)
   implementation(libs.androidx.datastore.preferences)
   implementation(libs.androidx.room.ktx)
@@ -118,6 +117,7 @@ dependencies {
   testImplementation(libs.robolectric)
   testImplementation(libs.turbine)
   testImplementation(libs.mockk)
+  testImplementation(libs.roborazzi)
 
   androidTestImplementation(platform(libs.androidx.compose.bom))
   androidTestImplementation(libs.androidx.compose.ui.test.junit4)

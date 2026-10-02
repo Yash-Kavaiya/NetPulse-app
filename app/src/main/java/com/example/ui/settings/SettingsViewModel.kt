@@ -15,7 +15,6 @@ import com.example.data.room.DataPlanEntity
 import com.example.data.room.SpeedTestDao
 import com.example.data.stats.TimeRanges
 import com.example.data.stats.UsageStatsSource
-import com.example.live.LiveSpeedService
 import com.example.work.WorkScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -50,8 +49,6 @@ class SettingsViewModel @Inject constructor(
     val plan: StateFlow<DataPlanEntity> = planRepository.plan
         .stateIn(viewModelScope, SharingStarted.Eagerly, DataPlanEntity())
 
-    val liveRunning: StateFlow<Boolean> = LiveSpeedService.running
-
     private val _messages = Channel<String>(Channel.BUFFERED)
     val messages = _messages.receiveAsFlow()
 
@@ -61,15 +58,6 @@ class SettingsViewModel @Inject constructor(
     fun setAlerts(enabled: Boolean) = viewModelScope.launch {
         settingsRepository.setAlertsEnabled(enabled)
         if (enabled) WorkScheduler.runNow(context)
-    }
-
-    fun setLiveNotification(enabled: Boolean) = viewModelScope.launch {
-        val active = if (enabled) LiveSpeedService.start(context) else {
-            LiveSpeedService.stop(context)
-            false
-        }
-        settingsRepository.setLiveSpeedNotification(active)
-        if (enabled && !active) _messages.send("Couldn't start the live speed notification")
     }
 
     fun savePlan(plan: DataPlanEntity) = viewModelScope.launch {

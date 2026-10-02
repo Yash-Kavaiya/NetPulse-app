@@ -37,7 +37,7 @@ private val sections = listOf(
             "estimate and check your carrier's app for billing figures.",
     "Background work" to
         "A periodic job saves daily totals and checks your plan once an hour, so alerts arrive even when the " +
-            "app is closed. The live speed notification runs only while you keep it switched on."
+            "app is closed."
 )
 
 @Composable
