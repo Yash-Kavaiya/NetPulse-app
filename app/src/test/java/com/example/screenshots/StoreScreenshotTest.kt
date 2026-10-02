@@ -169,7 +169,7 @@ private class EmptyDailyUsageDao : DailyUsageDao {
 
 /**
  * Renders the app's real screens with sample data to PNG files for the Play Store listing.
- * Output: app/build/outputs/roborazzi/*.png (1080 x 2160).
+ * Output: PNG files (1080 x 2160) in app/build/outputs/roborazzi.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
