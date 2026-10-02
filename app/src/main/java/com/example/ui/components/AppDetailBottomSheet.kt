@@ -1,7 +1,7 @@
 package com.example.ui.components
 
 import android.content.Intent
-import androidx.core.net.toUri
+import android.net.Uri
 import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,15 +23,7 @@ import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.NetworkCell
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.runtime.remember
-import com.example.data.model.UsageBucket
-import com.example.ui.common.UsageBarChart
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.Button
@@ -72,8 +64,7 @@ fun AppDetailBottomSheet(
     detail: AppDetailBreakdown?,
     isLoading: Boolean,
     sheetState: SheetState,
-    onDismiss: () -> Unit,
-    trend: List<UsageBucket> = emptyList()
+    onDismiss: () -> Unit
 ) {
     if (app == null) return
     val context = LocalContext.current
@@ -89,7 +80,6 @@ fun AppDetailBottomSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp)
                 .padding(bottom = 32.dp)
         ) {
@@ -257,7 +247,7 @@ fun AppDetailBottomSheet(
                             Icon(
                                 imageVector = Icons.Default.NetworkCell,
                                 contentDescription = "Cellular",
-                                tint = GoogleGreen,
+                                tint = GoogleRed,
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
@@ -386,24 +376,6 @@ fun AppDetailBottomSheet(
                 }
             }
 
-            if (trend.any { it.totalBytes > 0 }) {
-                Spacer(modifier = Modifier.height(24.dp))
-                Text(
-                    text = "Last 14 days",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = googleColors.darkGray
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                val dayFormat = remember { SimpleDateFormat("d MMM", Locale.getDefault()) }
-                UsageBarChart(
-                    buckets = trend,
-                    labelFor = { dayFormat.format(Date(it.startTime)) },
-                    chartHeight = 120.dp,
-                    modifier = Modifier.testTag("app_trend_chart")
-                )
-            }
-
             Spacer(modifier = Modifier.height(24.dp))
 
             // Action: Open Android App Info Settings if real package
@@ -412,7 +384,7 @@ fun AppDetailBottomSheet(
                     onClick = {
                         try {
                             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                data = "package:${app.packageName}".toUri()
+                                data = Uri.parse("package:${app.packageName}")
                                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
                             }
                             context.startActivity(intent)
@@ -430,7 +402,7 @@ fun AppDetailBottomSheet(
                     )
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                        imageVector = Icons.Default.OpenInNew,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )

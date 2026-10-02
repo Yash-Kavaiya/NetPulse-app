@@ -54,7 +54,7 @@ import com.example.data.model.SortOption
 import com.example.data.model.TimeRangeFilter
 import com.example.ui.theme.BorderGray
 import com.example.ui.theme.GoogleBlue
-import com.example.ui.theme.GoogleGreen
+import com.example.ui.theme.GoogleRed
 import com.example.ui.theme.GoogleUIBlue
 import com.example.ui.theme.LocalGoogleColors
 
@@ -87,7 +87,7 @@ fun FilterSection(
                     modifier = Modifier
                         .testTag("time_chip_${range.name.lowercase()}")
                         .clip(RoundedCornerShape(16.dp))
-                        .background(if (isSelected) googleColors.infoBg else MaterialTheme.colorScheme.surface)
+                        .background(if (isSelected) googleColors.infoBg else googleColors.white)
                         .clickable { onTimeRangeSelected(range) }
                         .padding(horizontal = 14.dp, vertical = 8.dp),
                     contentAlignment = Alignment.Center
@@ -132,7 +132,7 @@ fun FilterSection(
                                     Icon(
                                         imageVector = Icons.Default.NetworkCell,
                                         contentDescription = null,
-                                        tint = if (isSelected) GoogleGreen else googleColors.mediumGray,
+                                        tint = if (isSelected) GoogleRed else googleColors.mediumGray,
                                         modifier = Modifier.size(16.dp)
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
@@ -215,7 +215,7 @@ fun FilterSection(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(20.dp))
-                        .background(MaterialTheme.colorScheme.surface)
+                        .background(googleColors.white)
                         .clickable { sortMenuExpanded = true }
                         .padding(horizontal = 12.dp, vertical = 12.dp),
                     contentAlignment = Alignment.Center
