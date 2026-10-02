@@ -7,13 +7,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.BuildConfig
 import com.example.ui.common.SectionCard
 import com.example.ui.theme.LocalGoogleColors
+
+const val PRIVACY_POLICY_URL = "https://yash-kavaiya.github.io/NetPulse-app/"
 
 private val sections = listOf(
     "How it works" to
@@ -38,6 +43,7 @@ private val sections = listOf(
 @Composable
 fun AboutScreen() {
     val colors = LocalGoogleColors.current
+    val uriHandler = LocalUriHandler.current
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -57,6 +63,12 @@ fun AboutScreen() {
             item {
                 SectionCard(title = title) {
                     Text(body, style = MaterialTheme.typography.bodyMedium, color = colors.darkGray, modifier = Modifier.padding(bottom = 4.dp))
+                    if (title == "Privacy") {
+                        TextButton(
+                            onClick = { runCatching { uriHandler.openUri(PRIVACY_POLICY_URL) } },
+                            modifier = Modifier.testTag("privacy_policy_link")
+                        ) { Text("Read the full privacy policy") }
+                    }
                 }
             }
         }
