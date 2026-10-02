@@ -28,7 +28,11 @@ jobs:
         run: chmod +x gradlew
 
       - name: Assemble debug and release APKs
-        run: ./gradlew assembleDebug assembleRelease --stacktrace
+        # Built one after the other: both variants export the Room schema to the same
+        # file, and running them in parallel can leave one reading it half-written.
+        run: |
+          ./gradlew assembleDebug --stacktrace
+          ./gradlew assembleRelease --stacktrace
 
       - name: Upload APKs
         uses: actions/upload-artifact@v4
