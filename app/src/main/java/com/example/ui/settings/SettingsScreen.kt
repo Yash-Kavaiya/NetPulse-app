@@ -55,7 +55,6 @@ fun SettingsScreen(
     val context = LocalContext.current
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val plan by viewModel.plan.collectAsStateWithLifecycle()
-    val liveRunning by viewModel.liveRunning.collectAsStateWithLifecycle()
     var showPlanDialog by rememberSaveable { mutableStateOf(false) }
     var pendingExport by remember { mutableStateOf<ExportKind?>(null) }
 
@@ -63,9 +62,7 @@ fun SettingsScreen(
         viewModel.messages.collect { snackbarHostState.showSnackbar(it) }
     }
 
-    val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        if (granted) viewModel.setLiveNotification(true)
-    }
+    val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
     val createDocument = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("*/*")) { uri ->
         val kind = pendingExport
         if (uri != null && kind != null) viewModel.export(kind, uri)
@@ -102,23 +99,6 @@ fun SettingsScreen(
                             notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
                         }
                         viewModel.setAlerts(enabled)
-                    }
-                )
-            }
-        }
-
-        item(key = "live") {
-            SectionCard(title = "Live monitor") {
-                ToggleRow(
-                    title = "Live speed notification",
-                    subtitle = "Shows current download and upload speed in the status bar. Also available as a Quick Settings tile.",
-                    checked = liveRunning,
-                    onCheckedChange = { enabled ->
-                        if (enabled && Build.VERSION.SDK_INT >= 33 && !Notifications.canPost(context)) {
-                            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
-                        } else {
-                            viewModel.setLiveNotification(enabled)
-                        }
                     }
                 )
             }

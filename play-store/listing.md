@@ -40,7 +40,6 @@ SMART TIPS
 On-device tips point out what's using your data and how to save it. Nothing is sent anywhere.
 
 MORE
-• Live speed in your notification bar, with a Quick Settings tile
 • Home-screen widget
 • Export usage to CSV, back up and restore your settings
 • Light and dark themes, with Material You colors
@@ -49,7 +48,7 @@ PRIVATE BY DESIGN
 Your usage statistics never leave your phone. No account, no ads, no analytics. The speed test is the only feature that uses the internet.
 
 PERMISSIONS
-NetPulse needs Usage access to read Android's network statistics. It is used only to show your data usage. Notifications are optional and used for plan alerts and the live speed indicator.
+NetPulse needs Usage access to read Android's network statistics. It is used only to show your data usage. Notifications are optional and used for plan alerts.
 
 Note: carriers may count data slightly differently. Use NetPulse as a guide and check your carrier for billing figures.
 

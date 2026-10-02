@@ -39,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.DeviceNetworkSummary
@@ -102,10 +103,13 @@ fun DataSummaryCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Total Usage • ${timeRange.label}",
+                    text = timeRange.label,
                     style = MaterialTheme.typography.labelLarge,
                     color = googleColors.mediumGray,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f).padding(end = 8.dp)
                 )
 
                 // Live Speed Pill Badge
@@ -125,10 +129,12 @@ fun DataSummaryCard(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "Live: ↓ ${liveSpeed.rxFormatted} ↑ ${liveSpeed.txFormatted}",
+                            text = "↓ ${liveSpeed.rxFormatted}  ↑ ${liveSpeed.txFormatted}",
                             style = MaterialTheme.typography.labelSmall,
                             color = GoogleUIBlue,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            softWrap = false
                         )
                     }
                 }

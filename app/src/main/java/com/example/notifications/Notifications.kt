@@ -19,31 +19,21 @@ import com.example.data.plan.PlanAlert
 
 object Notifications {
     const val CHANNEL_ALERTS = "data_alerts"
-    const val CHANNEL_LIVE = "live_speed"
 
     const val ID_PLAN_ALERT = 1001
-    const val ID_LIVE_SPEED = 1002
 
     fun createChannels(context: Context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val manager = context.getSystemService(NotificationManager::class.java)
-        manager.createNotificationChannels(
-            listOf(
-                NotificationChannel(
-                    CHANNEL_ALERTS,
-                    context.getString(R.string.channel_alerts_name),
-                    NotificationManager.IMPORTANCE_HIGH
-                ).apply { description = context.getString(R.string.channel_alerts_desc) },
-                NotificationChannel(
-                    CHANNEL_LIVE,
-                    context.getString(R.string.channel_live_name),
-                    NotificationManager.IMPORTANCE_LOW
-                ).apply {
-                    description = context.getString(R.string.channel_live_desc)
-                    setShowBadge(false)
-                }
-            )
+        manager.createNotificationChannel(
+            NotificationChannel(
+                CHANNEL_ALERTS,
+                context.getString(R.string.channel_alerts_name),
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply { description = context.getString(R.string.channel_alerts_desc) }
         )
+        // Earlier builds had a live-speed notification; remove its channel on upgrade.
+        manager.deleteNotificationChannel("live_speed")
     }
 
     fun canPost(context: Context): Boolean =

@@ -19,7 +19,6 @@ data class AppSettings(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val dynamicColor: Boolean = false,
     val alertsEnabled: Boolean = true,
-    val liveSpeedNotification: Boolean = false,
     val onboardingDone: Boolean = false
 )
 
@@ -31,7 +30,6 @@ class SettingsRepository @Inject constructor(
         val THEME = stringPreferencesKey("theme_mode")
         val DYNAMIC_COLOR = booleanPreferencesKey("dynamic_color")
         val ALERTS = booleanPreferencesKey("alerts_enabled")
-        val LIVE_NOTIF = booleanPreferencesKey("live_speed_notification")
         val ONBOARDING = booleanPreferencesKey("onboarding_done")
     }
 
@@ -41,7 +39,6 @@ class SettingsRepository @Inject constructor(
                 ?: ThemeMode.SYSTEM,
             dynamicColor = prefs[Keys.DYNAMIC_COLOR] ?: false,
             alertsEnabled = prefs[Keys.ALERTS] ?: true,
-            liveSpeedNotification = prefs[Keys.LIVE_NOTIF] ?: false,
             onboardingDone = prefs[Keys.ONBOARDING] ?: false
         )
     }
@@ -51,7 +48,6 @@ class SettingsRepository @Inject constructor(
     suspend fun setThemeMode(mode: ThemeMode) = dataStore.edit { it[Keys.THEME] = mode.name }
     suspend fun setDynamicColor(enabled: Boolean) = dataStore.edit { it[Keys.DYNAMIC_COLOR] = enabled }
     suspend fun setAlertsEnabled(enabled: Boolean) = dataStore.edit { it[Keys.ALERTS] = enabled }
-    suspend fun setLiveSpeedNotification(enabled: Boolean) = dataStore.edit { it[Keys.LIVE_NOTIF] = enabled }
     suspend fun setOnboardingDone(done: Boolean) = dataStore.edit { it[Keys.ONBOARDING] = done }
 
     /** Restores everything except onboarding state (which is per-device). */
@@ -59,6 +55,5 @@ class SettingsRepository @Inject constructor(
         it[Keys.THEME] = settings.themeMode.name
         it[Keys.DYNAMIC_COLOR] = settings.dynamicColor
         it[Keys.ALERTS] = settings.alertsEnabled
-        it[Keys.LIVE_NOTIF] = settings.liveSpeedNotification
     }
 }

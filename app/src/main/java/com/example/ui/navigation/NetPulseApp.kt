@@ -1,5 +1,6 @@
 package com.example.ui.navigation
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -65,66 +66,62 @@ private val topLevel = listOf(
     TopLevel(SpeedRoute, SpeedRoute::class, R.string.nav_speed, Icons.Default.Speed, "nav_speed")
 )
 
+/**
+ * The app frame: top bar, bottom navigation and snackbar host. Shared by the real navigation
+ * host and by screenshot tests so both render the same chrome.
+ *
+ * @param selectedTab index of the selected bottom tab, or null on a secondary screen (which
+ *   shows a back arrow instead of the settings action and hides the bottom bar).
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NetPulseNavHost(
-    navController: NavHostController = rememberNavController()
+fun NetPulseChrome(
+    title: String,
+    selectedTab: Int?,
+    onTabSelected: (Int) -> Unit,
+    onBack: () -> Unit,
+    onOpenSettings: () -> Unit,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    content: @Composable (PaddingValues) -> Unit
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
-    val backStack by navController.currentBackStackEntryAsState()
-    val destination = backStack?.destination
-    val currentTop = topLevel.firstOrNull { t -> destination?.hierarchy?.any { it.hasRoute(t.routeClass) } == true }
-
-    val title = when {
-        currentTop != null -> if (currentTop.route == DashboardRoute) stringResource(R.string.app_name) else stringResource(currentTop.labelRes)
-        destination?.hasRoute(SettingsRoute::class) == true -> stringResource(R.string.settings)
-        destination?.hasRoute(AboutRoute::class) == true -> stringResource(R.string.about)
-        else -> ""
-    }
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            run {
-                CenterAlignedTopAppBar(
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background,
-                        scrolledContainerColor = MaterialTheme.colorScheme.background
-                    ),
-                    title = { Text(title, fontWeight = FontWeight.Bold) },
-                    navigationIcon = {
-                        if (currentTop == null) {
-                            IconButton(onClick = { navController.popBackStack() }) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back))
-                            }
-                        }
-                    },
-                    actions = {
-                        if (currentTop != null) {
-                            IconButton(
-                                onClick = { navController.navigate(SettingsRoute) { launchSingleTop = true } },
-                                modifier = Modifier.testTag("open_settings")
-                            ) {
-                                Icon(Icons.Default.Settings, stringResource(R.string.settings))
-                            }
+            CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    scrolledContainerColor = MaterialTheme.colorScheme.background
+                ),
+                title = { Text(title, fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    if (selectedTab == null) {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back))
                         }
                     }
-                )
-            }
+                },
+                actions = {
+                    if (selectedTab != null) {
+                        IconButton(onClick = onOpenSettings, modifier = Modifier.testTag("open_settings")) {
+                            Icon(Icons.Default.Settings, stringResource(R.string.settings))
+                        }
+                    }
+                }
+            )
         },
         bottomBar = {
-            if (currentTop != null) {
+            if (selectedTab != null) {
                 NavigationBar(
                     containerColor = MaterialTheme.colorScheme.surface,
                     tonalElevation = 0.dp
                 ) {
-                    topLevel.forEach { item ->
-                        val selected = currentTop == item
+                    topLevel.forEachIndexed { index, item ->
+                        val selected = selectedTab == index
                         NavigationBarItem(
                             selected = selected,
-                            onClick = { navController.navigateTopLevel(item.route) },
+                            onClick = { onTabSelected(index) },
                             icon = { Icon(item.icon, contentDescription = null) },
                             label = {
                                 Text(
@@ -145,7 +142,41 @@ fun NetPulseNavHost(
                     }
                 }
             }
-        }
+        },
+        content = content
+    )
+}
+
+/** Title shown in the top bar for bottom tab [index]. */
+@Composable
+fun topLevelTitle(index: Int): String =
+    if (index == 0) stringResource(R.string.app_name) else stringResource(topLevel[index].labelRes)
+
+@Composable
+fun NetPulseNavHost(
+    navController: NavHostController = rememberNavController()
+) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val backStack by navController.currentBackStackEntryAsState()
+    val destination = backStack?.destination
+    val currentTab = topLevel
+        .indexOfFirst { t -> destination?.hierarchy?.any { it.hasRoute(t.routeClass) } == true }
+        .takeIf { it >= 0 }
+
+    val title = when {
+        currentTab != null -> topLevelTitle(currentTab)
+        destination?.hasRoute(SettingsRoute::class) == true -> stringResource(R.string.settings)
+        destination?.hasRoute(AboutRoute::class) == true -> stringResource(R.string.about)
+        else -> ""
+    }
+
+    NetPulseChrome(
+        title = title,
+        selectedTab = currentTab,
+        onTabSelected = { navController.navigateTopLevel(topLevel[it].route) },
+        onBack = { navController.popBackStack() },
+        onOpenSettings = { navController.navigate(SettingsRoute) { launchSingleTop = true } },
+        snackbarHostState = snackbarHostState
     ) { padding ->
         NavHost(
             navController = navController,
